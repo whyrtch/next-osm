@@ -13,8 +13,19 @@ const nextConfig = {
     REACT_APP_BASIC_AUTH_ID: process.env.REACT_APP_BASIC_AUTH_ID,
     REACT_APP_BASIC_AUTH_PASSWORD: process.env.REACT_APP_BASIC_AUTH_PASSWORD,
   },
+  webpack(config) {
+    // Add custom SVG handling
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    })
+
+    // Return the updated config
+    return config
+  },
 }
 
+// Import the PWA plugin
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -22,4 +33,5 @@ const withPWA = require('next-pwa')({
   skipWaiting: true,
 })
 
+// Combine configurations
 module.exports = withPWA(nextConfig)
