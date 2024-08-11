@@ -5,6 +5,15 @@ import 'leaflet/dist/leaflet.css'
 import { createIcon } from '../../utils'
 import { wsLocation } from './map-component.type'
 
+declare global {
+  // @ts-ignore: interface Window is used implicitly
+  interface Window {
+    ReactNativeWebView: {
+      postMessage: (message: string) => void;
+    };
+  }
+}
+
 // Default map and marker positions
 const defaultMapPosition: LatLngExpression = [-6.2473944, 106.7973739]
 const rekosistemHQLocation: LatLngExpression = [-6.2471738, 106.7988685]
@@ -68,7 +77,18 @@ const MapComponent: React.FC = () => {
   // Define the onClick handler
   const handleClick = (event: L.LeafletEvent) => {
     console.log('Marker clicked', event)
-    // Additional logic for the click event
+
+    try {
+      const eventData = {
+        latlng: event.target.getLatLng(),
+        type: event.type,
+      }
+
+      // Send event data back to React Native
+      window.ReactNativeWebView.postMessage(JSON.stringify(eventData))
+    } catch (e) {
+      console.log("Error", e)
+    }
   }
 
   useEffect(() => {
@@ -84,6 +104,28 @@ const MapComponent: React.FC = () => {
       )
     }
   }, [])
+
+  // =============== useEffect receiving message from native  =============== //
+  useEffect(() => {
+    window.addEventListener('message', (event) => {
+      const message = event.data
+
+      if (message) {
+        if (message === 'getLocation') {
+          _handleGetMyLocation()
+        } else if (message === 'resetLocation') {
+          _handleResetLocation()
+        } else if (message.type === 'location') {
+          const { latitude, longitude } = message
+          setMyLocation([latitude, longitude])
+          if (mapRef.current) {
+            mapRef.current.setView([latitude, longitude], 13)
+          }
+        }
+      }
+    })
+  }, [])
+  // =============== useEffect receiving message from native  =============== //
 
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
