@@ -9,8 +9,8 @@ declare global {
   // @ts-ignore: interface Window is used implicitly
   interface Window {
     ReactNativeWebView: {
-      postMessage: (message: string) => void;
-    };
+      postMessage: (message: string) => void
+    }
   }
 }
 
@@ -46,21 +46,16 @@ const MapComponent: React.FC = () => {
   const mapRef = useRef<any>(null)
 
   const _handleGetMyLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          setMyLocation([latitude, longitude])
-          if (mapRef.current) {
-            mapRef.current.setView([latitude, longitude], 13) // Adjust zoom level as needed
-          }
-        },
-        (error) => {
-          console.error('Error getting location', error)
-        }
-      )
-    } else {
-      console.error('Geolocation is not supported by this browser.')
+    try {
+      const eventData = {
+        latlng: null,
+        type: 'getLocation',
+      }
+
+      // Send a message to the React Native WebView
+      window.ReactNativeWebView.postMessage(JSON.stringify(eventData))
+    } catch (e) {
+      console.log('Failed to trigger getLocation', e)
     }
   }
 
@@ -81,13 +76,13 @@ const MapComponent: React.FC = () => {
     try {
       const eventData = {
         latlng: event.target.getLatLng(),
-        type: event.type,
+        type: "ws-clicked",
       }
 
       // Send event data back to React Native
       window.ReactNativeWebView.postMessage(JSON.stringify(eventData))
     } catch (e) {
-      console.log("Error", e)
+      console.log('Error', e)
     }
   }
 
@@ -105,6 +100,26 @@ const MapComponent: React.FC = () => {
     }
   }, [])
 
+  // Listen for messages from React Native
+  useEffect(() => {
+    document.addEventListener('message', (event: any) => {
+      const message = JSON.parse(event.data)
+
+      if (message.type === 'location') {
+        const { latlng } = message
+        if (latlng) {
+          const loc = latlng as [number, number]
+          setMyLocation(loc)
+          if (mapRef.current) mapRef.current.setView(loc, 13) // Adjust zoom level as needed
+        }
+      }
+    })
+
+    return () => {
+      document.removeEventListener('message', () => {})
+    }
+  }, [])
+
   // =============== useEffect receiving message from native  =============== //
   useEffect(() => {
     window.addEventListener('message', (event) => {
@@ -113,14 +128,9 @@ const MapComponent: React.FC = () => {
       if (message) {
         if (message === 'getLocation') {
           _handleGetMyLocation()
-        } else if (message === 'resetLocation') {
+        }
+        if (message === 'resetLocation') {
           _handleResetLocation()
-        } else if (message.type === 'location') {
-          const { latitude, longitude } = message
-          setMyLocation([latitude, longitude])
-          if (mapRef.current) {
-            mapRef.current.setView([latitude, longitude], 13)
-          }
         }
       }
     })
