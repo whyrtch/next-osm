@@ -31,33 +31,32 @@ const MapComponent: React.FC = () => {
   const [myLocation, setMyLocation] = useState<LatLngExpression | null>(null)
   const [position, setPosition] = useState<LatLngExpression>(defaultMapPosition)
   const [zoom, setZoom] = useState(defaultZoom)
+  const [selectedWs, setSelectedWs] = useState<DropStationType | null>(null)
 
   const [wsLocations, setWsLocations] = useState<DropStationType[]>([])
   const mapRef = useRef<any>(null)
 
   const _handleGetMyLocation = () => {
     try {
-      const eventData = {
-        latlng: null,
-        type: 'getLocation',
+      setPosition(defaultPosition)
+      setMyLocation(defaultPosition)
+      if (mapRef.current) {
+        mapRef.current.setView(defaultPosition, zoom) // Adjust zoom level as needed
       }
-
-      // Send a message to the React Native WebView
-      window.ReactNativeWebView.postMessage(JSON.stringify(eventData))
     } catch (e) {
       console.log('Failed to trigger getLocation', e)
     }
   }
 
-  const _handleResetLocation = () => {
-    setPosition(defaultPosition)
-    // setMyLocation(null)
-    if (mapRef.current) {
-      mapRef.current.setView(defaultPosition, zoom) // Adjust zoom level as needed
-    } else {
-      console.error('Geolocation is not supported by this browser.')
-    }
-  }
+  // const _handleResetLocation = () => {
+  //   setPosition(defaultPosition)
+  //   // setMyLocation(null)
+  //   if (mapRef.current) {
+  //     mapRef.current.setView(defaultPosition, zoom) // Adjust zoom level as needed
+  //   } else {
+  //     console.error('Geolocation is not supported by this browser.')
+  //   }
+  // }
 
   // Define the onClick handler
   const handleClick = (ws: DropStationType) => {
@@ -114,6 +113,18 @@ const MapComponent: React.FC = () => {
         }
       }
 
+      if (message.type === 'selectWsLocations') {
+        const { ws, zoom } = message
+        if (ws) {
+          const loc = {
+            lat: ws.latitude,
+            lng: ws.longitude,
+          }
+          setSelectedWs(ws)
+          if (mapRef.current) mapRef.current.setView(loc, zoom) // Adjust zoom level as needed
+        }
+      }
+
       if (message.type === 'wsLocations') {
         const { dropStations, coordinate, zoom } = message
         if (dropStations) setWsLocations(dropStations as DropStationType[])
@@ -125,6 +136,9 @@ const MapComponent: React.FC = () => {
           setPosition(loc)
           setDefaultPosition(loc)
           setMyLocation(loc)
+          if (mapRef.current) {
+            mapRef.current.setView(loc, zoom) // Adjust zoom level as needed
+          }
         }
         if (zoom) setZoom(zoom as number)
       }
@@ -144,9 +158,9 @@ const MapComponent: React.FC = () => {
         if (message === 'getLocation') {
           _handleGetMyLocation()
         }
-        if (message === 'resetLocation') {
-          _handleResetLocation()
-        }
+        // if (message === 'resetLocation') {
+        //   _handleResetLocation()
+        // }
       }
     })
   }, [])
@@ -177,19 +191,19 @@ const MapComponent: React.FC = () => {
           }}
         />
       </button>
-      <button
-        onClick={_handleResetLocation}
-        style={{
-          position: 'absolute',
-          top: '25px',
-          left: '60px',
-          zIndex: 1000,
-          height: '5%',
-          padding: 2,
-        }}
-      >
-        Reset
-      </button>
+      {/*<button*/}
+      {/*  onClick={_handleResetLocation}*/}
+      {/*  style={{*/}
+      {/*    position: 'absolute',*/}
+      {/*    top: '25px',*/}
+      {/*    left: '60px',*/}
+      {/*    zIndex: 1000,*/}
+      {/*    height: '5%',*/}
+      {/*    padding: 2,*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  Reset*/}
+      {/*</button>*/}
       <MapContainer
         center={position}
         zoom={zoom}
@@ -218,6 +232,20 @@ const MapComponent: React.FC = () => {
             <Popup>{ws.name}</Popup>
           </Marker>
         ))}
+        {selectedWs && (
+          <Marker
+            position={{
+              lat: selectedWs.latitude,
+              lng: selectedWs.longitude,
+            }}
+            icon={marker}
+            eventHandlers={{
+              click: () => handleClick(selectedWs), // Attach the onClick event handler
+            }}
+          >
+            <Popup>{selectedWs.name}</Popup>
+          </Marker>
+        )}
         {myLocation && (
           <Marker
             position={myLocation}
