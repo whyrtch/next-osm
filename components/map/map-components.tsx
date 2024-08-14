@@ -213,10 +213,61 @@ const MapComponent: React.FC = () => {
           mapRef.current = map
         }}
       >
+        {/*OpenStreetMap (OSM) - Standard*/}
+        {/*<TileLayer*/}
+        {/*  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"*/}
+        {/*  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
+        {/*/>*/}
+
+        {/*OpenTopoMap*/}
+        {/*<TileLayer*/}
+        {/*  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"*/}
+        {/*  attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'*/}
+        {/*/>*/}
+
+        {/*Stamen Toner*/}
+        {/*<TileLayer*/}
+        {/*  url="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"*/}
+        {/*  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under ODbL.'*/}
+        {/*/>*/}
+
+        {/*Thunderforest - OpenCycleMap NEED APIKEY*/}
+        {/*<TileLayer*/}
+        {/*  url="https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=YOUR_API_KEY"*/}
+        {/*  attribution='&copy; <a href="https://www.thunderforest.com">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
+        {/*/>*/}
+
+        {/*CartoDB Positron*/}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
+
+        {/*OpenStreetMap (OSM) - Black and White*/}
+        {/*<TileLayer*/}
+        {/*  url="https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"*/}
+        {/*  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
+        {/*/>*/}
+
+        {/*MAPBOX TILE*/}
+        {/*<TileLayer*/}
+        {/*  url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=YOUR_ACCESS_TOKEN"*/}
+        {/*  attribution='Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
+        {/*  id="mapbox/streets-v11"*/}
+        {/*/>*/}
+
+        {/*Stamen Watercolor*/}
+        {/*<TileLayer*/}
+        {/*  url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"*/}
+        {/*  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.'*/}
+        {/*/>*/}
+
+        {/*Esri World Imagery:*/}
+        {/*<TileLayer*/}
+        {/*  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}"*/}
+        {/*  attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'*/}
+        {/*/>*/}
+
         {wsLocations?.map((ws, i) => (
           <Marker
             key={`${ws.name}-${i}`}
