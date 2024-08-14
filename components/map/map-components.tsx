@@ -15,7 +15,7 @@ declare global {
 }
 
 // Default map and marker positions
-// const defaultMapPosition: LatLngExpression = [-6.2473944, 106.7973739]
+const defaultMapPosition: LatLngExpression = [-6.2473944, 106.7973739]
 // const rekosistemHQLocation: LatLngExpression = [-6.2471738, 106.7988685]
 // const mBlocLocation: LatLngExpression = [-6.2431818, 106.7954079]
 // const papayaLocation: LatLngExpression = [-6.2451386, 106.7958215]
@@ -26,9 +26,10 @@ const marker = createIcon('/ws-marker.png', [50, 60])
 const myLocationMarker = createIcon('/marker.png')
 
 const MapComponent: React.FC = () => {
-  const [defaultPosition, setDefaultPosition] = useState<LatLngExpression>()
+  const [defaultPosition, setDefaultPosition] =
+    useState<LatLngExpression>(defaultMapPosition)
   const [myLocation, setMyLocation] = useState<LatLngExpression | null>(null)
-  const [position, setPosition] = useState<LatLngExpression>()
+  const [position, setPosition] = useState<LatLngExpression>(defaultMapPosition)
   const [zoom, setZoom] = useState(defaultZoom)
 
   const [wsLocations, setWsLocations] = useState<DropStationType[]>([])
@@ -85,19 +86,19 @@ const MapComponent: React.FC = () => {
     }
   }
 
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         const { latitude, longitude } = position.coords
-  //         setMyLocation([latitude, longitude])
-  //       },
-  //       (error) => {
-  //         console.error('Error getting location', error)
-  //       }
-  //     )
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          setMyLocation([latitude, longitude])
+        },
+        (error) => {
+          console.error('Error getting location', error)
+        }
+      )
+    }
+  }, [])
 
   // Listen for messages from React Native
   useEffect(() => {
