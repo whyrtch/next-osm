@@ -4,6 +4,9 @@ import { LatLngExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { createIcon } from '../../utils'
 import { DropStationType } from './map-component.type'
+import { logger } from "react-native-logs";
+
+const  log = logger.createLogger();
 
 declare global {
   // @ts-ignore: interface Window is used implicitly
@@ -44,7 +47,7 @@ const MapComponent: React.FC = () => {
         mapRef.current.setView(defaultPosition, zoom) // Adjust zoom level as needed
       }
     } catch (e) {
-      console.log('Failed to trigger getLocation', e)
+      log.error('Failed to trigger getLocation', e)
     }
   }
 
@@ -54,13 +57,13 @@ const MapComponent: React.FC = () => {
   //   if (mapRef.current) {
   //     mapRef.current.setView(defaultPosition, zoom) // Adjust zoom level as needed
   //   } else {
-  //     console.error('Geolocation is not supported by this browser.')
+  //     log.error('Geolocation is not supported by this browser.')
   //   }
   // }
 
   // Define the onClick handler
   const handleClick = (ws: DropStationType) => {
-    console.log('Marker clicked', ws.name)
+    log.info('Marker clicked', ws.name)
 
     try {
       const eventData = {
@@ -81,7 +84,7 @@ const MapComponent: React.FC = () => {
       // Send event data back to React Native
       window.ReactNativeWebView.postMessage(JSON.stringify(eventData))
     } catch (e) {
-      console.log('Error', e)
+      log.error('Failed get detail', e)
     }
   }
 
@@ -93,7 +96,7 @@ const MapComponent: React.FC = () => {
           setMyLocation([latitude, longitude])
         },
         (error) => {
-          console.error('Error getting location', error)
+          log.error('Error getting location', error)
         }
       )
     }
@@ -214,12 +217,12 @@ const MapComponent: React.FC = () => {
         }}
       >
         {/*OpenStreetMap (OSM) - Standard*/}
-        {/*<TileLayer*/}
-        {/*  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"*/}
-        {/*  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
-        {/*/>*/}
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
 
-        {/*OpenTopoMap*/}
+        {/*OpenTopMap*/}
         {/*<TileLayer*/}
         {/*  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"*/}
         {/*  attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'*/}
@@ -230,18 +233,6 @@ const MapComponent: React.FC = () => {
         {/*  url="https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"*/}
         {/*  attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under ODbL.'*/}
         {/*/>*/}
-
-        {/*Thunderforest - OpenCycleMap NEED APIKEY*/}
-        {/*<TileLayer*/}
-        {/*  url="https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=YOUR_API_KEY"*/}
-        {/*  attribution='&copy; <a href="https://www.thunderforest.com">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'*/}
-        {/*/>*/}
-
-        {/*CartoDB Positron*/}
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        />
 
         {/*OpenStreetMap (OSM) - Black and White*/}
         {/*<TileLayer*/}
@@ -298,13 +289,7 @@ const MapComponent: React.FC = () => {
           </Marker>
         )}
         {myLocation && (
-          <Marker
-            position={myLocation}
-            icon={myLocationMarker}
-            // eventHandlers={{
-            //   click: handleClick, // Attach the onClick event handler
-            // }}
-          >
+          <Marker position={myLocation} icon={myLocationMarker}>
             <Popup>This is your location</Popup>
           </Marker>
         )}
